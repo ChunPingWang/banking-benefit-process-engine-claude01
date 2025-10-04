@@ -1,0 +1,175 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.oracle.com/technetwork/java/javase/crashes/
+hs_err_pid*
+replay_pid*
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Gradle
+.gradle
+**/build/
+!src/**/build/
+
+# Gradle Wrapper
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot
+spring-boot-*.jar
+spring-boot-*.war
+
+# H2 Database files
+*.h2.db
+*.trace.db
+
+# Lombok
+lombok.config
+
+# JUnit Platform
+**/test-results/
+**/test-output/
+**/junit/
+
+# TestNG
+test-output/
+
+# JaCoCo
+*.exec
+
+# SonarQube
+.sonar/
+
+# Docker
+Dockerfile.bak
+
+# Logs
+logs/
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Application specific
+application-local.yml
+application-local.yaml
+application-dev.yml
+application-dev.yaml
+
+# IDE specific
+.fleet/
+.idea_modules/
+
+# Java profiling
+*.hprof
+
+# JMX
+jmx.properties
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Node (if frontend components exist)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+*.coverage
+.nyc_output
+
+# OS generated files
+Icon?
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Banking specific
+# 排除敏感設定檔案
+**/sensitive/
+**/secrets/
+**/keys/
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore

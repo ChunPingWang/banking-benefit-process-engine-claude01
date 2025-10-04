@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: banking-benefit-process-engine
+
+  # 資料庫設定
+  datasource:
+    url: jdbc:h2:mem:benefitdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    
+  # JPA 設定
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        
+  # H2 Console 設定
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # 快取設定
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=3600s
+
+# 日誌設定
+logging:
+  level:
+    root: INFO
+    com.example.banking: DEBUG
+    org.springframework: INFO
+    org.hibernate: INFO
