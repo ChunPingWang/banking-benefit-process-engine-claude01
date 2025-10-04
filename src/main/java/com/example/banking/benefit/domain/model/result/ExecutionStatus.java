@@ -5,9 +5,12 @@ package com.example.banking.benefit.domain.model.result;
  */
 public enum ExecutionStatus {
     SUCCESS,
-    FAILED,
+    FAILURE,
     PAUSED,
     TERMINATED,
-    IN_PROGRESS,
-    FAILURE
+    IN_PROGRESS;
+
+    public boolean isSuccess() {
+        return this == SUCCESS;
+    }
 }

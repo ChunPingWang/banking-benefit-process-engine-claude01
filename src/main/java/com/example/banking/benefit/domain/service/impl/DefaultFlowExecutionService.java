@@ -18,6 +18,7 @@ import com.example.banking.benefit.domain.service.executor.NodeExecutorFactory;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,10 +50,8 @@ public class DefaultFlowExecutionService extends BaseFlowExecutionService {
             executionContexts.put(executionId, new HashMap<>());
             
             // 獲取起始節點
-            Node startNode = (Node) flow.getStartNode();
-            if (startNode == null) {
-                throw new FlowExecutionException("找不到起始節點");
-            }
+            Node startNode = flow.getStartNode()
+                .orElseThrow(() -> new FlowExecutionException("找不到起始節點"));
             
             // 開始執行節點
             return executeNode(flow, startNode, context, executionId);
@@ -130,9 +129,9 @@ public class DefaultFlowExecutionService extends BaseFlowExecutionService {
 
         // 根據執行結果決定後續節點
         if (nodeResult.getStatus() == ExecutionStatus.SUCCESS) {
-            Node nextNode = null;
+            Optional<Node> nextNodeOpt = Optional.empty();
             if (node instanceof ProcessNode) {
-                nextNode = flow.getNextNode((ProcessNode) node);
+                nextNodeOpt = flow.getNextNode(node.getNodeId(), true);
             } else if (node instanceof DecisionNode) {
                 Boolean decision = null;
                 if (nodeContext != null) {
@@ -141,8 +140,9 @@ public class DefaultFlowExecutionService extends BaseFlowExecutionService {
                         decision = (Boolean) v;
                     }
                 }
-                nextNode = flow.getNextNode((DecisionNode) node, decision != null ? decision : false);
+                nextNodeOpt = flow.getNextNode(node.getNodeId(), decision != null ? decision : false);
             }
+            Node nextNode = nextNodeOpt.orElse(null);
 
             if (nextNode != null) {
                 return executeNode(flow, nextNode, context, executionId);
@@ -168,6 +168,6 @@ public class DefaultFlowExecutionService extends BaseFlowExecutionService {
         if (currentNodeId == null) {
             return null;
         }
-        return flow.findNodeById(currentNodeId);
+        return flow.findNodeById(currentNodeId).orElse(null);
     }
 }

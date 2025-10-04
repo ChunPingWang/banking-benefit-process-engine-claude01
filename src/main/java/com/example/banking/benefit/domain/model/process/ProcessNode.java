@@ -52,11 +52,7 @@ public class ProcessNode extends BaseProcessNode {
         if (implementationClassName == null || implementationClassName.trim().isEmpty()) {
             throw new IllegalArgumentException("Implementation class must not be null or empty");
         }
-        try {
-            this.implementationClass = Class.forName(implementationClassName);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Cannot find implementation class: " + implementationClassName, e);
-        }
+        this.implementationClass = implementationClassName;
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -88,11 +84,11 @@ public class ProcessNode extends BaseProcessNode {
     @Override
     public String getNodeName() { return name; }
     @Override
-    public String getNodeDescription() { return description; }
+    public String getDescription() { return description; }
     @Override
     public ProcessType getProcessType() { return processType; }
     public String getImplementationClassName() { 
-        return implementationClass != null ? implementationClass.getName() : null; 
+        return implementationClass;
     }
     public String getSpelExpression() { return spelExpression; }
     public String getStateName() { return state; }

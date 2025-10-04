@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'src/main/resources/db/schema.sql'
 ---
 
 # 資料庫設計指引

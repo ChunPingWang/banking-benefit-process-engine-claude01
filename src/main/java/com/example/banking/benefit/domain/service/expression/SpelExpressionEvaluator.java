@@ -27,7 +27,8 @@ public class SpelExpressionEvaluator implements ExpressionEvaluator {
     public boolean evaluateCondition(String expression, BaseExecutionContext context, Map<String, Object> variables) {
         Expression exp = parser.parseExpression(expression, parserContext);
         StandardEvaluationContext evalContext = createEvaluationContext(context, variables);
-        return exp.getValue(evalContext, Boolean.class);
+        Boolean result = exp.getValue(evalContext, Boolean.class);
+        return Boolean.TRUE.equals(result);
     }
     
     @Override

@@ -27,7 +27,7 @@ public class ExecutionResult {
     }
     
     public static ExecutionResult failure(FlowId flowId, String executionId, String message) {
-        return new ExecutionResult(flowId, executionId, ExecutionStatus.FAILED, message, null);
+        return new ExecutionResult(flowId, executionId, ExecutionStatus.FAILURE, message, null);
     }
     
     public static ExecutionResult paused(FlowId flowId, String executionId) {

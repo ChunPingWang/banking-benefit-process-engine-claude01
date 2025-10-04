@@ -2,20 +2,23 @@ package com.example.banking.benefit.domain.model.flow;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import com.example.banking.benefit.domain.model.node.DecisionNode;
-import com.example.banking.benefit.domain.model.process.ProcessNode;
+import com.example.banking.benefit.domain.model.node.FlowStructure;
 import com.example.banking.benefit.domain.model.node.Node;
+import com.example.banking.benefit.domain.model.process.ProcessNode;
+import com.example.banking.benefit.domain.model.relation.NodeRelation;
 
 /**
  * Flow 代表一個完整的流程定義，是整個系統的聚合根
  * 包含流程的基本資訊、版本控制和狀態管理
  */
 public class Flow {
-    // Node collections
     private List<DecisionNode> decisionNodes = new ArrayList<>();
     private List<ProcessNode> processNodes = new ArrayList<>();
+    private List<NodeRelation> relations = new ArrayList<>();
+    private FlowStructure flowStructure;
     private FlowId flowId;
     private String flowName;
     private String description;
@@ -116,28 +119,25 @@ public class Flow {
         this.processNodes.remove(node);
         this.updatedTime = LocalDateTime.now();
     }
+
+    public void addRelation(NodeRelation relation) {
+        if (relation == null) {
+            throw new IllegalArgumentException("relation must not be null");
+        }
+        this.relations.add(relation);
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void buildStructure() {
+        this.flowStructure = new FlowStructure(decisionNodes, processNodes, relations);
+    }
     
     // Get start node
-    public Node getStartNode() {
+    public Optional<Node> getStartNode() {
         if (startNodeId == null) {
-            return null;
+            return Optional.empty();
         }
-        
-        // Search in decision nodes
-        for (DecisionNode node : decisionNodes) {
-            if (startNodeId.equals(node.getNodeId())) {
-                return node;
-            }
-        }
-        
-        // Search in process nodes
-        for (ProcessNode node : processNodes) {
-            if (startNodeId.equals(node.getNodeId())) {
-                return node;
-            }
-        }
-        
-        return null;
+        return flowStructure.findNodeById(startNodeId);
     }
     
     public boolean isValid() {
@@ -145,51 +145,8 @@ public class Flow {
                (decisionNodes.size() > 0 || processNodes.size() > 0);
     }
     
-    public Node getNextNode(ProcessNode currentNode) {
-        if (currentNode == null) {
-            return null;
-        }
-        
-        // Sort all nodes by order
-        List<Node> allNodes = new ArrayList<>();
-        allNodes.addAll(decisionNodes);
-        allNodes.addAll(processNodes);
-        allNodes.sort(Comparator.comparing(Node::getNodeOrder));
-        
-        // Find next node
-        boolean found = false;
-        for (Node node : allNodes) {
-            if (found) {
-                return node;
-            }
-            if (node.getNodeId().equals(currentNode.getNodeId())) {
-                found = true;
-            }
-        }
-        
-        return null;
-    }
-    
-    public Node getNextNode(DecisionNode decisionNode, boolean condition) {
-        // 這裡應該根據決策節點的結果來決定下一個節點
-        // 目前簡單實現為直接返回下一個節點
-        // 根據條件決定下一個節點
-        List<Node> allNodes = new ArrayList<>();
-        allNodes.addAll(decisionNodes);
-        allNodes.addAll(processNodes);
-        allNodes.sort(Comparator.comparing(Node::getNodeOrder));
-        
-        boolean found = false;
-        for (Node node : allNodes) {
-            if (found) {
-                return node;
-            }
-            if (node.getNodeId().equals(decisionNode.getNodeId())) {
-                found = true;
-            }
-        }
-        
-        return null;
+    public Optional<Node> getNextNode(String currentNodeId, boolean condition) {
+        return flowStructure.findNextNode(currentNodeId, condition);
     }
     
     /**
@@ -198,25 +155,7 @@ public class Flow {
      * @param nodeId 節點ID
      * @return 節點物件，如果找不到則返回null
      */
-    public Node findNodeById(String nodeId) {
-        if (nodeId == null) {
-            return null;
-        }
-        
-        // 搜尋決策節點
-        for (DecisionNode node : decisionNodes) {
-            if (nodeId.equals(node.getNodeId())) {
-                return node;
-            }
-        }
-        
-        // 搜尋處理節點
-        for (ProcessNode node : processNodes) {
-            if (nodeId.equals(node.getNodeId())) {
-                return node;
-            }
-        }
-        
-        return null;
+    public Optional<Node> findNodeById(String nodeId) {
+        return flowStructure.findNodeById(nodeId);
     }
 }

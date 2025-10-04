@@ -7,13 +7,13 @@ import com.example.banking.benefit.domain.model.node.ProcessType;
  * 處理節點基礎類別
  * 實作 Node 介面，提供處理節點的基本功能
  */
-public class BaseProcessNode implements Node {
+public abstract class BaseProcessNode implements Node {
     
     protected String id;
     protected String name;
     protected String description;
     protected ProcessType processType;
-    protected Class<?> implementationClass;
+    protected String implementationClass;
     protected String spelExpression;
     protected String state;
     protected Integer nodeOrder;
@@ -40,7 +40,7 @@ public class BaseProcessNode implements Node {
     }
 
     @Override
-    public String getNodeDescription() {
+    public String getDescription() {
         return description;
     }
 
@@ -49,22 +49,12 @@ public class BaseProcessNode implements Node {
         return nodeOrder;
     }
 
-    @Override
-    public boolean isDecisionNode() {
-        return false;
-    }
-
-    @Override
-    public boolean isProcessNode() {
-        return true;
-    }
-
     // Getter 方法
     public ProcessType getProcessType() {
         return processType;
     }
 
-    public Class<?> getImplementationClass() {
+    public String getImplementationClass() {
         return implementationClass;
     }
 
@@ -93,7 +83,7 @@ public class BaseProcessNode implements Node {
         this.processType = processType;
     }
 
-    public void setImplementationClass(Class<?> implementationClass) {
+    public void setImplementationClass(String implementationClass) {
         this.implementationClass = implementationClass;
     }
 

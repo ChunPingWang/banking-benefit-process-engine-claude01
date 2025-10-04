@@ -8,7 +8,7 @@ import java.util.UUID;
  * 運算內容物件
  * 包含流程執行時需要的所有資訊
  */
-public class ExecutionContext {
+public class ExecutionContext implements BaseExecutionContext {
     private final String flowId;
     private final String customerId;
     private final CustomerData customerData;
@@ -48,6 +48,13 @@ public class ExecutionContext {
 
     public CustomerData getCustomerData() {
         return customerData;
+    }
+
+    @Override
+    public Object getCustomerData(String key) {
+        return customerData.getAttribute(key)
+                .map(CustomerAttribute::getValue)
+                .orElse(null);
     }
 
     public String getExecutionId() {

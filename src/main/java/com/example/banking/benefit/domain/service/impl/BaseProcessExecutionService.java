@@ -19,7 +19,9 @@ public class BaseProcessExecutionService implements ProcessExecutionService {
     @Override
     public void execute(ProcessNode node, BaseExecutionContext context) {
         if (!canExecute(node, context)) {
-            throw new ProcessExecutionException("無法執行處理節點: " + node.getNodeId());
+            // 安全地獲取節點ID，避免NullPointerException
+            String nodeId = (node != null) ? node.getNodeId() : "null";
+            throw new ProcessExecutionException("無法執行處理節點: " + nodeId);
         }
 
         try {

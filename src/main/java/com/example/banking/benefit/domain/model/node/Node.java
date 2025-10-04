@@ -7,8 +7,6 @@ package com.example.banking.benefit.domain.model.node;
 public interface Node {
     String getNodeId();
     String getNodeName();
-    String getNodeDescription();
+    String getDescription();
     Integer getNodeOrder();
-    boolean isDecisionNode();
-    boolean isProcessNode();
 }

@@ -5,6 +5,7 @@ import com.example.banking.benefit.domain.model.result.ExecutionResult;
 import com.example.banking.benefit.domain.model.result.ExecutionStatus;
 import com.example.banking.benefit.domain.model.flow.Flow;
 import com.example.banking.benefit.domain.model.node.DecisionNode;
+import com.example.banking.benefit.domain.model.node.Node;
 import com.example.banking.benefit.domain.model.process.ProcessNode;
 import com.example.banking.benefit.domain.service.FlowExecutionService;
 import com.example.banking.benefit.domain.service.ProcessExecutionService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -51,13 +53,14 @@ public class BaseFlowExecutionService implements FlowExecutionService {
             validateFlow(flow);
             
             // 取得起始節點
-            var currentNode = flow.getStartNode();
-            if (currentNode == null) {
+            Optional<Node> currentNodeOpt = flow.getStartNode();
+            if (currentNodeOpt.isEmpty()) {
                 throw new FlowExecutionException("找不到流程起始節點");
             }
             
             // 開始執行流程邏輯
-            while (currentNode != null) {
+            while (currentNodeOpt.isPresent()) {
+                Node currentNode = currentNodeOpt.get();
                 // 檢查流程是否被暫停或中止
                 var status = getExecutionStatus(flow, context);
                 if (ExecutionStatus.PAUSED.name().equals(status)) {
@@ -69,16 +72,18 @@ public class BaseFlowExecutionService implements FlowExecutionService {
                 
                 try {
                     // 根據節點類型執行不同邏輯
-                    if (currentNode.isDecisionNode()) {
+                    if (currentNode instanceof DecisionNode) {
                         var decision = (DecisionNode) currentNode;
                         boolean result = decisionEvaluationService.evaluate(decision, context);
                         // 根據決策結果選擇下一個節點
-                        currentNode = flow.getNextNode(decision, result);
-                    } else if (currentNode.isProcessNode()) {
+                        currentNodeOpt = flow.getNextNode(decision.getNodeId(), result);
+                    } else if (currentNode instanceof ProcessNode) {
                         var process = (ProcessNode) currentNode;
                         processExecutionService.execute(process, context);
                         // 取得下一個節點
-                        currentNode = flow.getNextNode(process);
+                        currentNodeOpt = flow.getNextNode(process.getNodeId(), true); // Assuming process node always goes to next
+                    } else {
+                        throw new FlowExecutionException("未知的節點類型: " + currentNode.getClass().getName());
                     }
                 } catch (Exception e) {
                     logger.error("節點執行失敗: {}", currentNode.getNodeId(), e);

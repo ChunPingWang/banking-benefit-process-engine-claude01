@@ -88,4 +88,16 @@ public class NodeRelation {
     public LogicOperator getLogicOperator() { return logicOperator; }
     public String getConditionExpression() { return conditionExpression; }
     public LocalDateTime getCreatedTime() { return createdTime; }
+
+    public boolean matchesCondition(boolean condition) {
+        if (this.relationType == null) {
+            return false;
+        }
+        // Simple logic: TRUE branch for true condition, FALSE branch for false condition
+        if (condition) {
+            return this.relationType == RelationType.TRUE;
+        } else {
+            return this.relationType == RelationType.FALSE;
+        }
+    }
 }

@@ -14,6 +14,37 @@ public class DecisionNode implements Node {
     private String spelExpression;
     private Integer nodeOrder;
     
+    private DecisionNode(String nodeId, String nodeName, String nodeDescription,
+                         DecisionType decisionType, String implementationClass, String spelExpression) {
+        if (nodeId == null || nodeId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Node ID cannot be null or empty.");
+        }
+        if (nodeName == null || nodeName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Node name cannot be null or empty.");
+        }
+        this.nodeId = nodeId;
+        this.nodeName = nodeName;
+        this.nodeDescription = nodeDescription;
+        this.decisionType = decisionType;
+        this.implementationClass = implementationClass;
+        this.spelExpression = spelExpression;
+    }
+
+    public static DecisionNode createJavaClassDecision(String nodeId, String nodeName, String description, String implementationClass) {
+        if (implementationClass == null || implementationClass.trim().isEmpty()) {
+            throw new IllegalArgumentException("Implementation class cannot be null or empty for JAVA_CLASS decision type.");
+        }
+        return new DecisionNode(nodeId, nodeName, description, DecisionType.JAVA_CLASS, implementationClass, null);
+    }
+
+    public static DecisionNode createSpELDecision(String nodeId, String nodeName, String description, String spelExpression) {
+        if (spelExpression == null || spelExpression.trim().isEmpty()) {
+            throw new IllegalArgumentException("SpEL expression cannot be null or empty for SPEL decision type.");
+        }
+        return new DecisionNode(nodeId, nodeName, description, DecisionType.SPEL, null, spelExpression);
+    }
+    
+    @Override
     public String getNodeId() {
         return nodeId;
     }
@@ -71,12 +102,7 @@ public class DecisionNode implements Node {
     }
     
     @Override
-    public boolean isDecisionNode() {
-        return true;
-    }
-    
-    @Override
-    public boolean isProcessNode() {
-        return false;
+    public String getDescription() {
+        return nodeDescription;
     }
 }

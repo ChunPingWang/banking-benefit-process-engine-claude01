@@ -3,11 +3,13 @@ package com.example.banking.benefit.domain.model.decision;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.example.banking.benefit.domain.model.node.Node;
+
 /**
  * 決策節點實體
  * 負責執行決策邏輯並返回結果
  */
-public class DecisionNode {
+public class DecisionNode implements Node {
     private String nodeId;
     private String flowId;
     private String nodeName;
@@ -79,13 +81,17 @@ public class DecisionNode {
     }
 
     // Getters
+    @Override
     public String getNodeId() { return nodeId; }
     public String getFlowId() { return flowId; }
+    @Override
     public String getNodeName() { return nodeName; }
+    @Override
     public String getDescription() { return description; }
     public DecisionType getDecisionType() { return decisionType; }
     public String getImplementationClass() { return implementationClass; }
     public String getSpelExpression() { return spelExpression; }
+    @Override
     public Integer getNodeOrder() { return nodeOrder; }
     public LocalDateTime getCreatedTime() { return createdTime; }
     public LocalDateTime getUpdatedTime() { return updatedTime; }

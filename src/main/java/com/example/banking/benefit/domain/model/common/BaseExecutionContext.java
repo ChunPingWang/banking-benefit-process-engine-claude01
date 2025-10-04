@@ -40,8 +40,8 @@ public interface BaseExecutionContext {
     /**
      * 取得客戶資料
      */
-    Map<String, Object> getCustomerData();
-    
+    CustomerData getCustomerData();
+
     /**
      * 取得指定的客戶資料
      */

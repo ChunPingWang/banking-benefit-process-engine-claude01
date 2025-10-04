@@ -1,6 +1,6 @@
 package com.example.banking.benefit.domain.model.command;
 
-import com.example.banking.benefit.domain.model.context.ExecutionContext;
+import com.example.banking.benefit.domain.model.common.ExecutionContext;
 
 /**
  * 決策命令介面

@@ -1,62 +1,60 @@
 package com.example.banking.benefit.domain.service.impl;
 
-import com.example.banking.benefit.domain.model.common.ExecutionContext;
+import com.example.banking.benefit.domain.model.common.BaseExecutionContext;
+import com.example.banking.benefit.domain.model.common.CustomerAttribute;
 import com.example.banking.benefit.domain.model.common.CustomerData;
+import com.example.banking.benefit.domain.model.common.ExecutionContext;
 import com.example.banking.benefit.domain.model.process.ProcessNode;
-import com.example.banking.benefit.domain.model.process.ProcessType;
 import com.example.banking.benefit.domain.exception.ProcessExecutionException;
 import com.example.banking.benefit.domain.service.ProcessExecutionService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BaseProcessExecutionServiceTest {
 
     private ProcessExecutionService processExecutionService;
     private ProcessNode processNode;
-    private ExecutionContext context;
+    private BaseExecutionContext context;
 
     @BeforeEach
     void setUp() {
         processExecutionService = new BaseProcessExecutionService();
         
         // 建立測試用的處理節點
-        processNode = new ProcessNode(
-            "PROCESS_001",
+        processNode = ProcessNode.createJavaClassProcess(
+            "FLOW_001",
             "測試處理節點",
             "用於單元測試的處理節點",
-            1,
-            ProcessType.JAVA_CLASS,
-            "com.example.TestProcessor",
-            null,
-            null
+            "com.example.TestProcessor"
         );
+        processNode.setNodeOrder(1);
         
         // 建立測試用的執行內容
-        CustomerData customerData = new CustomerData("CUST_001", "測試客戶");
-        context = new ExecutionContext("CUST_001", customerData);
+        Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
+        attributes.put("name", CustomerAttribute.forString("測試客戶"));
+        CustomerData customerData = CustomerData.create(attributes);
+        context = ExecutionContext.create("FLOW_001", "CUST_001", customerData);
     }
 
     @Test
     void shouldExecuteProcessNodeSuccessfully() {
         // 準備測試資料
-        processNode = new ProcessNode(
-            "PROCESS_002",
+        processNode = ProcessNode.createJavaClassProcess(
+            "FLOW_001",
             "Java實作處理節點",
             "測試Java類別實作",
-            1,
-            ProcessType.JAVA_CLASS,
-            "com.example.TestProcessor",
-            null,
-            null
+            "com.example.TestProcessor"
         );
+        processNode.setNodeOrder(1);
 
         // 執行測試
         assertDoesNotThrow(() -> {
@@ -89,19 +87,11 @@ class BaseProcessExecutionServiceTest {
     @Test
     void shouldValidateProcessNodeBeforeExecution() {
         // 準備測試資料：無效的處理節點
-        ProcessNode invalidNode = new ProcessNode(
-            "PROCESS_003",
-            "無效處理節點",
-            "缺少必要設定的處理節點",
-            1,
-            null,  // 無效的處理類型
-            null,
-            null,
-            null
-        );
-
-        // 執行測試並驗證
-        assertFalse(processExecutionService.canExecute(invalidNode, context));
+        // The validation logic is now part of the factory or the node itself.
+        // This test should check for illegal arguments during creation.
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProcessNode.createJavaClassProcess("FLOW_001", "無效處理節點", "desc", "");
+        });
     }
 
     @Test
@@ -115,16 +105,13 @@ class BaseProcessExecutionServiceTest {
     @Test
     void shouldHandleSpelExpressionExecution() {
         // 準備測試資料：SpEL表達式處理節點
-        ProcessNode spelNode = new ProcessNode(
-            "PROCESS_004",
+        ProcessNode spelNode = ProcessNode.createSpELProcess(
+            "FLOW_001",
             "SpEL處理節點",
             "測試SpEL表達式執行",
-            1,
-            ProcessType.SPEL,
-            null,
-            "context.addVariable('result', true)",
-            null
+            "context.addVariable('result', true)"
         );
+        spelNode.setNodeOrder(1);
 
         // 執行測試
         assertDoesNotThrow(() -> {
