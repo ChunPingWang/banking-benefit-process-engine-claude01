@@ -601,6 +601,176 @@ Content-Type: application/json
 }
 ```
 
+### 實作指南
+
+#### 1. 新增決策節點 (Decision Node)
+
+決策節點用於執行條件判斷，支援兩種實作方式：
+
+1. **使用 SpEL 表達式**
+```java
+// 建立基於 SpEL 的決策節點
+DecisionNode ageCheck = DecisionNode.create()
+    .flowId("FLOW_001")
+    .nodeId("D001")
+    .name("年齡檢核")
+    .description("檢查客戶年齡是否符合資格")
+    .spelExpression("#customerData.get('age') >= 20")
+    .nodeOrder(1)
+    .build();
+
+// SpEL 表達式範例
+String[] spelExamples = {
+    "#customerData.get('age') >= 20",                          // 基本比較
+    "#customerData.get('vip') == true",                        // 布林判斷
+    "#customerData.get('balance') >= 50000",                   // 數值比較
+    "T(java.time.LocalDate).now().getYear() - #customerData.get('birthYear') >= 20"  // 日期計算
+};
+```
+
+2. **使用 Java 類別**
+```java
+// 建立基於 Java 類別的決策節點
+DecisionNode creditCheck = DecisionNode.create()
+    .flowId("FLOW_001")
+    .nodeId("D002")
+    .name("信用評分檢核")
+    .description("檢查客戶信用評分")
+    .implementationClass("com.example.banking.benefit.domain.decision.CreditScoreDecision")
+    .nodeOrder(2)
+    .build();
+
+// 實作 DecisionCommand 介面
+@Component
+public class CreditScoreDecision implements DecisionCommand {
+    @Override
+    public boolean evaluate(ExecutionContext context) {
+        CustomerData customerData = context.getCustomerData();
+        Integer creditScore = customerData.get("creditScore", Integer.class);
+        return creditScore >= 700;
+    }
+}
+```
+
+#### 2. 新增處理節點 (Process Node)
+
+處理節點用於執行業務邏輯，同樣支援兩種實作方式：
+
+1. **使用 SpEL 表達式**
+```java
+// 建立基於 SpEL 的處理節點
+ProcessNode updatePoints = ProcessNode.create()
+    .flowId("FLOW_001")
+    .nodeId("P001")
+    .name("更新積分")
+    .description("增加客戶積分")
+    .spelExpression("#customerData.attributes['points'] += 100")
+    .nodeOrder(1)
+    .stateName("PROCESSING")
+    .build();
+
+// SpEL 處理範例
+String[] processingExamples = {
+    "#customerData.attributes['points'] += 100",              // 更新數值
+    "#customerData.attributes['level'] = 'GOLD'",            // 設定狀態
+    "#customerData.attributes['lastUpdate'] = T(java.time.LocalDateTime).now()"  // 更新時間
+};
+```
+
+2. **使用 Java 類別**
+```java
+// 建立基於 Java 類別的處理節點
+ProcessNode sendNotification = ProcessNode.create()
+    .flowId("FLOW_001")
+    .nodeId("P002")
+    .name("發送通知")
+    .description("發送權益啟用通知")
+    .implementationClass("com.example.banking.benefit.domain.process.NotificationProcessor")
+    .nodeOrder(2)
+    .stateName("NOTIFYING")
+    .build();
+
+// 實作處理邏輯
+@Component
+public class NotificationProcessor implements ProcessCommand {
+    @Autowired
+    private NotificationService notificationService;
+    
+    @Override
+    public ExecutionResult execute(ExecutionContext context) {
+        String customerId = context.getCustomerId();
+        String message = String.format("尊敬的客戶 %s，您的權益已啟用", customerId);
+        notificationService.sendNotification(customerId, message);
+        return ExecutionResult.success();
+    }
+}
+```
+
+#### 3. 設定節點關係
+
+節點之間的關係定義了流程的執行順序：
+
+```java
+// 建立流程
+Flow flow = Flow.create(FlowId.generate(), "信用卡權益啟用流程", "自動檢核並啟用信用卡權益", Version.of("1.0"));
+
+// 添加節點
+flow.addDecisionNode(ageCheck);
+flow.addDecisionNode(creditCheck);
+flow.addProcessNode(updatePoints);
+flow.addProcessNode(sendNotification);
+
+// 設定節點關係
+flow.addRelation(NodeRelation.create()
+    .from(ageCheck)
+    .to(creditCheck)
+    .condition(true));
+
+flow.addRelation(NodeRelation.create()
+    .from(creditCheck)
+    .to(updatePoints)
+    .condition(true));
+
+flow.addRelation(NodeRelation.create()
+    .from(updatePoints)
+    .to(sendNotification)
+    .condition(true));
+
+// 設定起始節點
+flow.setStartNode(ageCheck.getNodeId());
+
+// 啟用流程
+flow.activate();
+```
+
+#### 4. 執行流程
+
+```java
+// 準備執行環境
+Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
+attributes.put("age", CustomerAttribute.of(25, Integer.class));
+attributes.put("creditScore", CustomerAttribute.of(750, Integer.class));
+attributes.put("points", CustomerAttribute.of(0, Integer.class));
+CustomerData customerData = CustomerData.create("CUST_001", attributes);
+
+// 建立執行上下文
+ExecutionContext context = new DefaultExecutionContext();
+context.setFlowId(flow.getFlowId());
+context.setCustomerId("CUST_001");
+context.setCustomerData(customerData);
+
+// 執行流程
+ExecutionResult result = flowExecutionService.execute(flow, context);
+
+// 檢查執行結果
+if (result.getStatus().isSuccess()) {
+    System.out.println("流程執行成功");
+    System.out.println("客戶積分: " + customerData.get("points", Integer.class));
+} else {
+    System.out.println("流程執行失敗: " + result.getErrorMessage());
+}
+```
+
 ### 常見使用情境
 
 1. **權益資格檢核流程**
@@ -608,11 +778,11 @@ Content-Type: application/json
 // 1. 建立決策節點
 DecisionNode ageCheck = DecisionNode.create()
     .name("年齡檢核")
-    .spelExpression("#customerData.age >= 20");
+    .spelExpression("#customerData.get('age') >= 20");
 
 DecisionNode balanceCheck = DecisionNode.create()
     .name("帳戶餘額檢核")
-    .spelExpression("#customerData.accountBalance >= 50000");
+    .spelExpression("#customerData.get('balance') >= 50000");
 
 // 2. 建立處理節點
 ProcessNode notifyCustomer = ProcessNode.create()
