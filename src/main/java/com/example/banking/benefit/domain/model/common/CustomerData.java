@@ -10,17 +10,26 @@ import java.util.Optional;
  * 包含客戶相關的所有資訊
  */
 public class CustomerData {
+    private final String id;
     private final Map<String, CustomerAttribute<?>> attributes;
 
-    private CustomerData(Map<String, CustomerAttribute<?>> attributes) {
+    private CustomerData(String id, Map<String, CustomerAttribute<?>> attributes) {
+        this.id = id;
         this.attributes = new HashMap<>(attributes);
     }
 
-    public static CustomerData create(Map<String, CustomerAttribute<?>> attributes) {
+    public static CustomerData create(String id, Map<String, CustomerAttribute<?>> attributes) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("id must not be null or empty");
+        }
         if (attributes == null) {
             throw new IllegalArgumentException("attributes must not be null");
         }
-        return new CustomerData(attributes);
+        return new CustomerData(id, attributes);
+    }
+    
+    public String getId() {
+        return id;
     }
 
     public Optional<CustomerAttribute<?>> getAttribute(String key) {

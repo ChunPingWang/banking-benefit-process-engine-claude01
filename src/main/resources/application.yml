@@ -2,6 +2,17 @@ spring:
   application:
     name: banking-benefit-process-engine
 
+  # Swagger 設定
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui.html
+      operations-sorter: method
+      tags-sorter: alpha
+    show-actuator: false
+    packages-to-scan: com.example.banking.benefit
+    
   # 資料庫設定
   datasource:
     url: jdbc:h2:mem:benefitdb

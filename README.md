@@ -496,9 +496,15 @@ DELETE /api/v1/flows/{flowId}/nodes/{nodeId} # 刪除節點
 - IDE: IntelliJ IDEA 或 Eclipse
 - 資料庫: H2 (開發) / PostgreSQL 13+ (正式)
 
-### 快速開始
+## 使用指南
 
+### 安裝與設定
+
+1. **環境準備**
 ```bash
+# 確認 JDK 版本
+java -version  # 需要 JDK 21 或以上
+
 # 複製專案
 git clone <repository-url>
 cd banking-benefit-process-engine
@@ -508,15 +514,149 @@ cd banking-benefit-process-engine
 
 # 執行測試
 ./gradlew test
+```
 
-# 啟動應用程式
+2. **資料庫設定**
+```bash
+# 開發環境 (H2)
+spring.datasource.url=jdbc:h2:mem:benefitdb
+spring.datasource.username=sa
+spring.datasource.password=
+
+# 正式環境 (PostgreSQL)
+spring.datasource.url=jdbc:postgresql://localhost:5432/benefitdb
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+```
+
+3. **啟動應用程式**
+```bash
+# 開發模式啟動
 ./gradlew bootRun
 
+# 生產模式啟動
+java -jar build/libs/banking-benefit-process-engine-1.0.0.jar
+```
+
+4. **檢查服務狀態**
+```bash
 # 查看 API 文件
 open http://localhost:8080/swagger-ui.html
 
-# 查看 H2 資料庫控制台
+# 查看 H2 資料庫控制台 (僅開發環境)
 open http://localhost:8080/h2-console
+```
+
+### 基本使用流程
+
+1. **建立流程**
+```http
+POST /api/v1/flows
+Content-Type: application/json
+
+{
+  "flowName": "客戶權益檢核",
+  "description": "檢查客戶是否符合權益資格",
+  "version": "1.0"
+}
+```
+
+2. **新增決策節點**
+```http
+POST /api/v1/flows/{flowId}/nodes
+Content-Type: application/json
+
+{
+  "nodeType": "DECISION",
+  "nodeName": "年齡檢核",
+  "decisionType": "SPEL",
+  "spelExpression": "#customerData.age >= 20"
+}
+```
+
+3. **新增處理節點**
+```http
+POST /api/v1/flows/{flowId}/nodes
+Content-Type: application/json
+
+{
+  "nodeType": "PROCESS",
+  "nodeName": "發送權益通知",
+  "implementationClass": "com.example.NotificationProcessor"
+}
+```
+
+4. **執行流程**
+```http
+POST /api/v1/flows/{flowId}/execute
+Content-Type: application/json
+
+{
+  "customerId": "CUST_001",
+  "customerData": {
+    "age": 25,
+    "accountBalance": 100000,
+    "membershipLevel": "GOLD"
+  }
+}
+```
+
+### 常見使用情境
+
+1. **權益資格檢核流程**
+```java
+// 1. 建立決策節點
+DecisionNode ageCheck = DecisionNode.create()
+    .name("年齡檢核")
+    .spelExpression("#customerData.age >= 20");
+
+DecisionNode balanceCheck = DecisionNode.create()
+    .name("帳戶餘額檢核")
+    .spelExpression("#customerData.accountBalance >= 50000");
+
+// 2. 建立處理節點
+ProcessNode notifyCustomer = ProcessNode.create()
+    .name("發送通知")
+    .implementationClass("com.example.NotificationProcessor");
+
+// 3. 設定節點關係
+flow.addDecisionNode(ageCheck);
+flow.addDecisionNode(balanceCheck);
+flow.addProcessNode(notifyCustomer);
+flow.addRelation(NodeRelation.create()
+    .from(ageCheck)
+    .to(balanceCheck)
+    .condition(true));
+```
+
+2. **動態決策邏輯**
+```java
+// 使用 SpEL 表達式
+spelExpression = "#customerData.membershipLevel == 'GOLD' " +
+                "and #customerData.transactionCount > 10";
+
+// 使用 Java 類別
+@Component
+public class CustomDecisionLogic implements DecisionCommand {
+    @Override
+    public boolean evaluate(ExecutionContext context) {
+        CustomerData customer = context.getCustomerData();
+        return customer.getMembershipLevel() == MembershipLevel.GOLD &&
+               customer.getTransactionCount() > 10;
+    }
+}
+```
+
+3. **監控流程執行**
+```http
+# 查詢執行統計
+GET /api/v1/statistics
+
+# 查詢特定流程執行記錄
+GET /api/v1/executions?flowId={flowId}
+
+# 查看詳細執行日誌
+GET /api/v1/executions/{executionId}/logs
 ```
 
 ### 開發規範

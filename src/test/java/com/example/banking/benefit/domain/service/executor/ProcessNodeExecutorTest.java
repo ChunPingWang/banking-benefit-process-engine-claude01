@@ -19,6 +19,20 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+/**
+ * 處理節點執行器的單元測試類
+ *
+ * 本測試類驗證處理節點執行器的以下功能：
+ * 1. SpEL表達式處理
+ * 2. Java類別處理
+ * 3. 狀態更新處理
+ * 4. 節點類型驗證
+ * 5. 異常處理
+ *
+ * @see ProcessNodeExecutor
+ * @see ProcessNode
+ * @see ExecutionResult
+ */
 class ProcessNodeExecutorTest {
 
     private ProcessNodeExecutor executor;
@@ -32,6 +46,14 @@ class ProcessNodeExecutorTest {
     @Mock
     private CustomerData customerData;
     
+    /**
+     * 測試前的初始化設定
+     * 準備模擬物件與測試資料，包含：
+     * 1. 初始化處理節點執行器
+     * 2. 設定模擬的ExecutionContext
+     * 3. 準備測試用的客戶資料
+     * 4. 設定處理節點的基本屬性
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -52,6 +74,11 @@ class ProcessNodeExecutorTest {
         when(processNode.getNodeId()).thenReturn("test-node");
     }
     
+    /**
+     * 測試SpEL表達式處理
+     * 驗證使用SpEL表達式更新客戶資料的功能
+     * 測試內容：增加客戶的積分點數
+     */
     @Test
     void execute_WithSpelExpression_ShouldReturnSuccess() {
         // 準備數據
@@ -70,6 +97,11 @@ class ProcessNodeExecutorTest {
         // This test now mainly verifies that the execution completes without error.
     }
     
+    /**
+     * 測試Java類別處理
+     * 驗證使用Java類別的處理節點執行程序
+     * 注意：由於測試類別不存在，應該返回失敗結果
+     */
     @Test
     void execute_WithJavaClass_ShouldReturnSuccess() {
         // 準備數據 - 由於類不存在，這個測試應該期望失敗結果
@@ -86,6 +118,11 @@ class ProcessNodeExecutorTest {
         assertFalse(result.getStatus().isSuccess());
     }
     
+    /**
+     * 測試無效節點處理
+     * 驗證當提供不支援的節點類型時，
+     * 是否正確拋出FlowExecutionException
+     */
     @Test
     void execute_WithInvalidNode_ShouldThrowException() {
         // 準備數據
@@ -105,6 +142,11 @@ class ProcessNodeExecutorTest {
             executor.execute(invalidNode, context, new HashMap<>()));
     }
     
+    /**
+     * 測試無處理邏輯節點
+     * 驗證當節點沒有設定SpEL表達式或Java類別時，
+     * 是否返回失敗結果
+     */
     @Test
     void execute_WithNoLogic_ShouldThrowException() {
         // 準備數據
@@ -121,11 +163,19 @@ class ProcessNodeExecutorTest {
         assertFalse(result.getStatus().isSuccess());
     }
     
+    /**
+     * 測試處理節點支援判斷
+     * 驗證是否能正確識別支援的處理節點類型
+     */
     @Test
     void supports_WithProcessNode_ShouldReturnTrue() {
         assertTrue(executor.supports(processNode));
     }
     
+    /**
+     * 測試非處理節點支援判斷
+     * 驗證是否正確識別並拒絕不支援的節點類型
+     */
     @Test
     void supports_WithNonProcessNode_ShouldReturnFalse() {
         Node nonProcessNode = new Node() {
@@ -142,6 +192,11 @@ class ProcessNodeExecutorTest {
         assertFalse(executor.supports(nonProcessNode));
     }
     
+    /**
+     * 測試狀態更新處理
+     * 驗證節點執行時的狀態轉換與屬性更新
+     * 測試內容：更新客戶等級為 platinum
+     */
     @Test
     void execute_WithStateUpdate_ShouldReturnSuccess() {
         // 準備數據

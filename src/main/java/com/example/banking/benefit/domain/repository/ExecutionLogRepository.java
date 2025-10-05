@@ -2,6 +2,8 @@ package com.example.banking.benefit.domain.repository;
 
 import com.example.banking.benefit.domain.model.log.ExecutionLog;
 import com.example.banking.benefit.domain.model.flow.FlowId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,4 +68,27 @@ public interface ExecutionLogRepository extends BaseRepository<ExecutionLog, Str
      * @param dateTime 時間點
      */
     void deleteByExecutionTimeBefore(LocalDateTime dateTime);
+    
+    /**
+     * 根據流程ID和時間範圍查詢執行日誌
+     *
+     * @param flowId 流程ID
+     * @param startTime 開始時間
+     * @param endTime 結束時間
+     * @return 執行日誌列表
+     */
+    List<ExecutionLog> findByFlowIdAndExecutionTimeBetween(String flowId, LocalDateTime startTime, LocalDateTime endTime);
+    
+    /**
+     * 根據流程ID、執行狀態和時間範圍分頁查詢執行日誌
+     *
+     * @param flowId 流程ID
+     * @param status 執行狀態
+     * @param startTime 開始時間
+     * @param endTime 結束時間
+     * @param pageable 分頁參數
+     * @return 執行日誌分頁
+     */
+    Page<ExecutionLog> findByFlowIdAndExecutionResultAndExecutionTimeBetween(
+            String flowId, String status, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable);
 }
