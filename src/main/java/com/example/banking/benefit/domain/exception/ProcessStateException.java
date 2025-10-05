@@ -3,46 +3,50 @@ package com.example.banking.benefit.domain.exception;
 /**
  * 流程狀態處理相關例外
  */
-public class ProcessStateException extends BaseException {
+public class ProcessStateException extends FlowExecutionException {
     
     public static final String ERROR_CODE_STATE_NOT_FOUND = "STATE_001";
     public static final String ERROR_CODE_INVALID_STATE = "STATE_002";
     public static final String ERROR_CODE_TRANSITION_ERROR = "STATE_003";
     public static final String ERROR_CODE_STATE_EXECUTION_ERROR = "STATE_004";
 
-    public ProcessStateException(String errorCode, String errorMessage) {
-        super(errorCode, errorMessage);
+    public ProcessStateException(String message, String flowId, String nodeId) {
+        super(message, flowId, nodeId);
     }
 
-    public ProcessStateException(String errorCode, String errorMessage, Throwable cause) {
-        super(errorCode, errorMessage, cause);
+    public ProcessStateException(String message, String flowId, String nodeId, Throwable cause) {
+        super(message, flowId, nodeId, cause);
     }
 
-    public static ProcessStateException stateNotFound(String stateId) {
+    public static ProcessStateException stateNotFound(String flowId, String nodeId, String stateId) {
         return new ProcessStateException(
-            ERROR_CODE_STATE_NOT_FOUND,
-            String.format("Process state not found with id: %s", stateId)
+            String.format("找不到狀態: %s", stateId),
+            flowId,
+            nodeId
         );
     }
 
-    public static ProcessStateException invalidState(String reason) {
+    public static ProcessStateException invalidState(String flowId, String nodeId, String reason) {
         return new ProcessStateException(
-            ERROR_CODE_INVALID_STATE,
-            String.format("Invalid process state: %s", reason)
+            String.format("無效的狀態: %s", reason),
+            flowId,
+            nodeId
         );
     }
 
-    public static ProcessStateException transitionError(String fromState, String toState, String reason) {
+    public static ProcessStateException transitionError(String flowId, String nodeId, String fromState, String toState, String reason) {
         return new ProcessStateException(
-            ERROR_CODE_TRANSITION_ERROR,
-            String.format("State transition error from %s to %s: %s", fromState, toState, reason)
+            String.format("狀態轉換錯誤 %s -> %s: %s", fromState, toState, reason),
+            flowId,
+            nodeId
         );
     }
 
-    public static ProcessStateException stateExecutionError(String state, String message, Throwable cause) {
+    public static ProcessStateException stateExecutionError(String flowId, String nodeId, String state, String message, Throwable cause) {
         return new ProcessStateException(
-            ERROR_CODE_STATE_EXECUTION_ERROR,
-            String.format("State execution error in %s: %s", state, message),
+            String.format("狀態執行錯誤 %s: %s", state, message),
+            flowId,
+            nodeId,
             cause
         );
     }

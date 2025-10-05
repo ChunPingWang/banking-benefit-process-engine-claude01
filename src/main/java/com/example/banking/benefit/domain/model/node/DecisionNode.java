@@ -1,5 +1,7 @@
 package com.example.banking.benefit.domain.model.node;
 
+import com.example.banking.benefit.domain.model.common.ExecutionContext;
+
 /**
  * 決策節點
  * 代表一個流程中的決策點，可以使用 Java 類別或 SpEL 表達式實作決策邏輯
@@ -104,5 +106,31 @@ public class DecisionNode implements Node {
     @Override
     public String getDescription() {
         return nodeDescription;
+    }
+    
+    public boolean isSpelExpression() {
+        return decisionType == DecisionType.SPEL;
+    }
+    
+    @Override
+    public NodeType getNodeType() {
+        return NodeType.DECISION;
+    }
+    
+    @Override
+    public boolean canExecute(ExecutionContext context) {
+        return context != null;
+    }
+    
+    @Override
+    public void validate() {
+        if (decisionType == DecisionType.JAVA_CLASS && 
+            (implementationClass == null || implementationClass.trim().isEmpty())) {
+            throw new IllegalStateException("Implementation class must be specified for JAVA_CLASS decision type.");
+        }
+        if (decisionType == DecisionType.SPEL && 
+            (spelExpression == null || spelExpression.trim().isEmpty())) {
+            throw new IllegalStateException("SpEL expression must be specified for SPEL decision type.");
+        }
     }
 }

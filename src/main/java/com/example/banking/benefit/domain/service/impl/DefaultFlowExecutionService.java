@@ -7,6 +7,8 @@ import com.example.banking.benefit.domain.model.node.DecisionNode;
 import com.example.banking.benefit.domain.model.process.ProcessNode;
 import com.example.banking.benefit.domain.model.result.ExecutionResult;
 import com.example.banking.benefit.domain.model.result.ExecutionStatus;
+import com.example.banking.benefit.domain.model.statistics.FlowStatistics;
+import com.example.banking.benefit.domain.model.statistics.ExecutionDetails;
 import com.example.banking.benefit.domain.port.output.CachePort;
 import com.example.banking.benefit.domain.port.output.LoggingPort;
 import com.example.banking.benefit.domain.port.output.NotificationPort;
@@ -169,5 +171,31 @@ public class DefaultFlowExecutionService extends BaseFlowExecutionService {
             return null;
         }
         return flow.findNodeById(currentNodeId).orElse(null);
+    }
+    
+    @Override
+    public FlowStatistics getFlowStatistics(String flowId, java.time.LocalDateTime startTime, java.time.LocalDateTime endTime) {
+        // 預設實作，可根據需要實作具體邏輯
+        throw new UnsupportedOperationException("getFlowStatistics not implemented in DefaultFlowExecutionService");
+    }
+    
+    @Override
+    public java.util.List<ExecutionDetails> getFlowExecutions(String flowId, java.time.LocalDateTime startTime, 
+                                                             java.time.LocalDateTime endTime, String status, 
+                                                             int pageSize, int pageNumber) {
+        // 預設實作，可根據需要實作具體邏輯
+        throw new UnsupportedOperationException("getFlowExecutions not implemented in DefaultFlowExecutionService");
+    }
+    
+    @Override
+    public ExecutionDetails getExecutionDetails(String executionId) {
+        // 預設實作，可根據需要實作具體邏輯
+        throw new UnsupportedOperationException("getExecutionDetails not implemented in DefaultFlowExecutionService");
+    }
+    
+    @Override
+    public java.util.List<FlowStatistics> getAllFlowStatistics(java.time.LocalDateTime startTime, java.time.LocalDateTime endTime) {
+        // 預設實作，可根據需要實作具體邏輯
+        throw new UnsupportedOperationException("getAllFlowStatistics not implemented in DefaultFlowExecutionService");
     }
 }

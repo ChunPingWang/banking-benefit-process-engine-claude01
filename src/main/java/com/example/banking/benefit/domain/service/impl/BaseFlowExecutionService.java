@@ -7,6 +7,8 @@ import com.example.banking.benefit.domain.model.flow.Flow;
 import com.example.banking.benefit.domain.model.node.DecisionNode;
 import com.example.banking.benefit.domain.model.node.Node;
 import com.example.banking.benefit.domain.model.process.ProcessNode;
+import com.example.banking.benefit.domain.model.statistics.FlowStatistics;
+import com.example.banking.benefit.domain.model.statistics.ExecutionDetails;
 import com.example.banking.benefit.domain.service.FlowExecutionService;
 import com.example.banking.benefit.domain.service.ProcessExecutionService;
 import com.example.banking.benefit.domain.service.DecisionEvaluationService;
@@ -157,5 +159,31 @@ public class BaseFlowExecutionService implements FlowExecutionService {
      */
     private String generateStatusCacheKey(Flow flow, BaseExecutionContext context) {
         return String.format("%s_%s", flow.getFlowId().toString(), context.getExecutionId());
+    }
+    
+    @Override
+    public FlowStatistics getFlowStatistics(String flowId, java.time.LocalDateTime startTime, java.time.LocalDateTime endTime) {
+        // 預設實作，可由子類別覆寫
+        throw new UnsupportedOperationException("getFlowStatistics not implemented in base class");
+    }
+    
+    @Override
+    public java.util.List<ExecutionDetails> getFlowExecutions(String flowId, java.time.LocalDateTime startTime, 
+                                                             java.time.LocalDateTime endTime, String status, 
+                                                             int pageSize, int pageNumber) {
+        // 預設實作，可由子類別覆寫
+        throw new UnsupportedOperationException("getFlowExecutions not implemented in base class");
+    }
+    
+    @Override
+    public ExecutionDetails getExecutionDetails(String executionId) {
+        // 預設實作，可由子類別覆寫
+        throw new UnsupportedOperationException("getExecutionDetails not implemented in base class");
+    }
+    
+    @Override
+    public java.util.List<FlowStatistics> getAllFlowStatistics(java.time.LocalDateTime startTime, java.time.LocalDateTime endTime) {
+        // 預設實作，可由子類別覆寫
+        throw new UnsupportedOperationException("getAllFlowStatistics not implemented in base class");
     }
 }

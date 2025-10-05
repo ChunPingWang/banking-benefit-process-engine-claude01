@@ -41,6 +41,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     
+    // Jakarta Inject
+    implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
+    
     // Spring Expression Language
     implementation 'org.springframework:spring-expression'
     

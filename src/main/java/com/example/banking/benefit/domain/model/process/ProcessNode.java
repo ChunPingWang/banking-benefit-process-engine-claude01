@@ -96,4 +96,24 @@ public class ProcessNode extends BaseProcessNode {
     public Integer getNodeOrder() { return nodeOrder; }
     public LocalDateTime getCreatedTime() { return createdTime; }
     public LocalDateTime getUpdatedTime() { return updatedTime; }
+    
+    @Override
+    public com.example.banking.benefit.domain.model.node.NodeType getNodeType() {
+        return com.example.banking.benefit.domain.model.node.NodeType.PROCESS;
+    }
+    
+    @Override
+    public boolean canExecute(com.example.banking.benefit.domain.model.common.ExecutionContext context) {
+        return context != null;
+    }
+    
+    @Override
+    public void validate() {
+        if (implementationClass == null && spelExpression == null) {
+            throw new IllegalStateException("Either implementation class or SpEL expression must be specified.");
+        }
+        if (implementationClass != null && spelExpression != null) {
+            throw new IllegalStateException("Cannot specify both implementation class and SpEL expression.");
+        }
+    }
 }

@@ -1,6 +1,6 @@
 package com.example.banking.benefit.domain.model.log;
 
-import com.example.banking.benefit.domain.model.relation.NodeType;
+import com.example.banking.benefit.domain.model.node.NodeType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
