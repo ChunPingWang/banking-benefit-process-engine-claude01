@@ -41,7 +41,7 @@ class BaseProcessExecutionServiceTest {
         // 建立測試用的執行內容
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("name", CustomerAttribute.forString("測試客戶"));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         context = ExecutionContext.create("FLOW_001", "CUST_001", customerData);
     }
 

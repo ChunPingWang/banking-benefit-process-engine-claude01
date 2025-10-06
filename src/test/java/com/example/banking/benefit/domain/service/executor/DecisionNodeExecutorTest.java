@@ -3,8 +3,10 @@ package com.example.banking.benefit.domain.service.executor;
 import com.example.banking.benefit.domain.model.common.BaseExecutionContext;
 import com.example.banking.benefit.domain.model.common.CustomerData;
 import com.example.banking.benefit.domain.model.common.CustomerAttribute;
+import com.example.banking.benefit.domain.model.common.ExecutionContext;
 import com.example.banking.benefit.domain.model.node.DecisionNode;
 import com.example.banking.benefit.domain.model.node.Node;
+import com.example.banking.benefit.domain.model.node.NodeType;
 import com.example.banking.benefit.domain.model.result.ExecutionResult;
 import com.example.banking.benefit.domain.exception.FlowExecutionException;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +65,7 @@ class DecisionNodeExecutorTest {
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("age", CustomerAttribute.of(30, Integer.class));
         attributes.put("vip", CustomerAttribute.of(true, Boolean.class));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         when(context.getCustomerData()).thenReturn(customerData);
         when(context.getVariables()).thenReturn(new HashMap<>());
         
@@ -140,6 +142,21 @@ class DecisionNodeExecutorTest {
             public Integer getNodeOrder() {
                 return 1;
             }
+            
+            @Override
+            public NodeType getNodeType() {
+                return NodeType.PROCESS; // 非決策節點
+            }
+            
+            @Override
+            public boolean canExecute(ExecutionContext context) {
+                return true;
+            }
+            
+            @Override
+            public void validate() {
+                // 測試節點，不做驗證
+            }
         };
         
         // 驗證
@@ -202,6 +219,21 @@ class DecisionNodeExecutorTest {
             @Override
             public Integer getNodeOrder() {
                 return 1;
+            }
+            
+            @Override
+            public NodeType getNodeType() {
+                return NodeType.PROCESS; // 非決策節點
+            }
+            
+            @Override
+            public boolean canExecute(ExecutionContext context) {
+                return true;
+            }
+            
+            @Override
+            public void validate() {
+                // 測試節點，不做驗證
             }
         };
         

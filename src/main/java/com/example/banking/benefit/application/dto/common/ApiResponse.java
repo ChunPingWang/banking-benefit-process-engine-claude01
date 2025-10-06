@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "API 通用響應物件")
 public class ApiResponse<T> {
     
+    @Schema(description = "操作是否成功", example = "true")
+    private boolean success;
+    
     @Schema(description = "響應代碼", example = "200")
     private String code;
     
@@ -24,6 +27,7 @@ public class ApiResponse<T> {
     
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
+                .success(true)
                 .code("200")
                 .message("操作成功")
                 .data(data)
@@ -32,6 +36,7 @@ public class ApiResponse<T> {
     
     public static <T> ApiResponse<T> error(String code, String message) {
         return ApiResponse.<T>builder()
+                .success(false)
                 .code(code)
                 .message(message)
                 .build();

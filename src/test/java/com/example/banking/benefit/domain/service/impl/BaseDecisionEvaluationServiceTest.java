@@ -51,7 +51,7 @@ class BaseDecisionEvaluationServiceTest {
         // 建立測試用的執行內容
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("name", CustomerAttribute.forString("測試客戶"));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         context = ExecutionContext.create("FLOW_001", "CUST_001", customerData);
         context.addVariable("testVar", true);
     }
@@ -123,7 +123,7 @@ class BaseDecisionEvaluationServiceTest {
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("age", CustomerAttribute.forInteger(25));
         attributes.put("amount", CustomerAttribute.forDouble(1500.0));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         BaseExecutionContext testContext = ExecutionContext.create("FLOW_001", "CUST_001", customerData);
         
         DecisionNode complexNode = DecisionNode.createSpELDecision(

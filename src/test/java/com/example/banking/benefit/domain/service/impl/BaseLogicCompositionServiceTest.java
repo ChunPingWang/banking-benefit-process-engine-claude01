@@ -39,7 +39,7 @@ class BaseLogicCompositionServiceTest {
         // 建立測試用的執行內容
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("amount", CustomerAttribute.forInteger(1000));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         context = ExecutionContext.create("FLOW_001", "CUST_001", customerData);
     }
 

@@ -56,7 +56,7 @@ class SpelExpressionEvaluatorTest {
         Map<String, CustomerAttribute<?>> attributes = new HashMap<>();
         attributes.put("age", CustomerAttribute.of(30, Integer.class));
         attributes.put("vip", CustomerAttribute.of(true, Boolean.class));
-        CustomerData customerData = CustomerData.create(attributes);
+        CustomerData customerData = CustomerData.create("CUST_001", attributes);
         when(context.getCustomerData()).thenReturn(customerData);
     }
 

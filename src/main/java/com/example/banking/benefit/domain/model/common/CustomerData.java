@@ -1,5 +1,7 @@
 package com.example.banking.benefit.domain.model.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,9 @@ public class CustomerData {
     private final String id;
     private final Map<String, CustomerAttribute<?>> attributes;
 
-    private CustomerData(String id, Map<String, CustomerAttribute<?>> attributes) {
+    @JsonCreator
+    private CustomerData(@JsonProperty("id") String id, 
+                        @JsonProperty("allAttributes") Map<String, CustomerAttribute<?>> attributes) {
         this.id = id;
         this.attributes = new HashMap<>(attributes);
     }
@@ -28,8 +32,14 @@ public class CustomerData {
         return new CustomerData(id, attributes);
     }
     
+    @JsonProperty("id")
     public String getId() {
         return id;
+    }
+
+    @JsonProperty("allAttributes") 
+    public Map<String, CustomerAttribute<?>> getAllAttributes() {
+        return Collections.unmodifiableMap(attributes);
     }
 
     public Optional<CustomerAttribute<?>> getAttribute(String key) {
@@ -54,9 +64,5 @@ public class CustomerData {
 
     public boolean hasKey(String key) {
         return attributes.containsKey(key);
-    }
-
-    public Map<String, CustomerAttribute<?>> getAllAttributes() {
-        return Collections.unmodifiableMap(attributes);
     }
 }

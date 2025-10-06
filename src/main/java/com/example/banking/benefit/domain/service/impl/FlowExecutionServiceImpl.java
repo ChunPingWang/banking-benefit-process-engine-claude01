@@ -14,7 +14,7 @@ import com.example.banking.benefit.domain.model.statistics.ExecutionDetails;
 import com.example.banking.benefit.domain.model.statistics.FlowStatistics;
 import com.example.banking.benefit.domain.model.log.ExecutionLog;
 import com.example.banking.benefit.domain.model.command.DecisionCommand;
-import com.example.banking.benefit.domain.service.FlowExecutionService;
+import com.example.banking.benefit.domain.service.FlowExecutionServiceExtended;
 import com.example.banking.benefit.domain.repository.ExecutionLogRepository;
 import com.example.banking.benefit.domain.repository.FlowRepository;
 import com.example.banking.benefit.domain.exception.*;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import java.lang.reflect.InvocationTargetException;
 
 @Service
-public class FlowExecutionServiceImpl implements FlowExecutionService {
+public class FlowExecutionServiceImpl implements FlowExecutionServiceExtended {
 
     private final FlowRepository flowRepository;
     private final ExecutionLogRepository executionLogRepository;
@@ -145,8 +145,12 @@ public class FlowExecutionServiceImpl implements FlowExecutionService {
             throw new FlowNotFoundException("找不到流程：" + flowId);
         }
         
+        // 如果時間參數為null，設定預設值
+        LocalDateTime effectiveStartTime = startTime != null ? startTime : LocalDateTime.now().minusDays(30);
+        LocalDateTime effectiveEndTime = endTime != null ? endTime : LocalDateTime.now();
+        
         // 從 ExecutionLogRepository 取得執行記錄
-        List<ExecutionLog> logs = executionLogRepository.findByFlowIdAndExecutionTimeBetween(flowId, startTime, endTime);
+        List<ExecutionLog> logs = executionLogRepository.findByFlowIdAndExecutionTimeBetween(flowId, effectiveStartTime, effectiveEndTime);
         
         // 計算成功和失敗的執行數量
         long totalExecutions = logs.size();
@@ -180,12 +184,16 @@ public class FlowExecutionServiceImpl implements FlowExecutionService {
             throw new FlowNotFoundException("找不到流程：" + flowId);
         }
         
+        // 如果時間參數為null，設定預設值
+        LocalDateTime effectiveStartTime = startTime != null ? startTime : LocalDateTime.now().minusDays(30);
+        LocalDateTime effectiveEndTime = endTime != null ? endTime : LocalDateTime.now();
+        
         // 轉換為分頁參數
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         
         // 查詢執行記錄
         var executionLogs = executionLogRepository.findByFlowIdAndExecutionResultAndExecutionTimeBetween(
-            flowId, status, startTime, endTime, pageRequest);
+            flowId, status, effectiveStartTime, effectiveEndTime, pageRequest);
             
         // 將執行記錄轉換為 ExecutionDetails
         return executionLogs.getContent().stream()
@@ -205,9 +213,37 @@ public class FlowExecutionServiceImpl implements FlowExecutionService {
     public List<FlowStatistics> getAllFlowStatistics(LocalDateTime startTime, LocalDateTime endTime) {
         List<Flow> flows = flowRepository.findAll();
         
+        // 如果時間參數為null，設定預設值
+        LocalDateTime effectiveStartTime = startTime != null ? startTime : LocalDateTime.now().minusDays(30);
+        LocalDateTime effectiveEndTime = endTime != null ? endTime : LocalDateTime.now();
+        
         return flows.stream()
-            .map(flow -> getFlowStatistics(flow.getFlowId().getValue(), startTime, endTime))
+            .map(flow -> getFlowStatistics(flow.getFlowId().getValue(), effectiveStartTime, effectiveEndTime))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public ExecutionResult getExecutionResult(String executionId) {
+        ExecutionLog log = executionLogRepository.findById(executionId)
+            .orElseThrow(() -> new RuntimeException("執行結果不存在"));
+            
+        // 根據執行記錄建立ExecutionResult
+        FlowId flowId = FlowId.of(log.getFlowId());
+        if ("SUCCESS".equals(log.getExecutionResult().toString())) {
+            return ExecutionResult.success(flowId, executionId, null);
+        } else {
+            return ExecutionResult.failure(flowId, executionId, log.getErrorMessage());
+        }
+    }
+
+    @Override
+    public void cancelExecution(String executionId) {
+        // 檢查執行記錄是否存在
+        executionLogRepository.findById(executionId)
+            .orElseThrow(() -> new RuntimeException("執行記錄不存在"));
+            
+        // 這裡可以實作取消邏輯，暫時拋出異常表示無法取消
+        throw new RuntimeException("無法取消執行");
     }
 
     private ExecutionDetails convertToExecutionDetails(ExecutionLog log) {
@@ -265,11 +301,22 @@ public class FlowExecutionServiceImpl implements FlowExecutionService {
 
     private void logExecution(String executionId, String flowId, String customerId, 
                             String type, String nodeId, String result, String message) {
+        // 確保 nodeId 不為 null
+        String safeNodeId = nodeId != null ? nodeId : "UNKNOWN";
+        
+        // 確保 type 是有效的 NodeType
+        com.example.banking.benefit.domain.model.node.NodeType nodeType;
+        try {
+            nodeType = com.example.banking.benefit.domain.model.node.NodeType.valueOf(type);
+        } catch (IllegalArgumentException e) {
+            nodeType = com.example.banking.benefit.domain.model.node.NodeType.PROCESS;
+        }
+        
         ExecutionLog log = ExecutionLog.create(
             flowId,
             customerId,
-            nodeId,
-            com.example.banking.benefit.domain.model.node.NodeType.valueOf(type),
+            safeNodeId,
+            nodeType,
             "SUCCESS".equals(result) ? com.example.banking.benefit.domain.model.log.ExecutionResult.PASS 
                                    : com.example.banking.benefit.domain.model.log.ExecutionResult.FAIL
         );

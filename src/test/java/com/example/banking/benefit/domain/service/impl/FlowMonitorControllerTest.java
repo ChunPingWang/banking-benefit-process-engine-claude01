@@ -22,6 +22,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class FlowMonitorControllerTest {
@@ -50,7 +52,7 @@ class FlowMonitorControllerTest {
             Duration.ofMillis(100)  // minExecutionTime
         );
         
-        when(flowExecutionService.getFlowStatistics(eq(flowId), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(flowExecutionService.getFlowStatistics(eq(flowId), isNull(), isNull()))
                 .thenReturn(mockStatistics);
 
         // Act
@@ -63,7 +65,7 @@ class FlowMonitorControllerTest {
         assertEquals(90L, response.getBody().getSuccessfulExecutions());
         assertEquals(10L, response.getBody().getFailedExecutions());
         assertEquals(100L, response.getBody().getTotalExecutions());
-        verify(flowExecutionService).getFlowStatistics(eq(flowId), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(flowExecutionService).getFlowStatistics(eq(flowId), isNull(), isNull());
     }
 
     @Test
@@ -85,7 +87,7 @@ class FlowMonitorControllerTest {
             .build();
         executions.add(details);
         
-        when(flowExecutionService.getFlowExecutions(eq(flowId), any(), any(), any(), eq(size), eq(page)))
+        when(flowExecutionService.getFlowExecutions(eq(flowId), isNull(), isNull(), isNull(), eq(size), eq(page)))
                 .thenReturn(executions);
 
         // Act
@@ -97,7 +99,7 @@ class FlowMonitorControllerTest {
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isEmpty());
         assertEquals(1, response.getBody().size());
-        verify(flowExecutionService).getFlowExecutions(eq(flowId), any(), any(), any(), eq(size), eq(page));
+        verify(flowExecutionService).getFlowExecutions(eq(flowId), isNull(), isNull(), isNull(), eq(size), eq(page));
     }
 
     @Test
@@ -149,7 +151,7 @@ class FlowMonitorControllerTest {
             Duration.ofMillis(120)  // minExecutionTime
         ));
         
-        when(flowExecutionService.getAllFlowStatistics(any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(flowExecutionService.getAllFlowStatistics(isNull(), isNull()))
                 .thenReturn(mockStatistics);
 
         // Act
@@ -159,6 +161,6 @@ class FlowMonitorControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        verify(flowExecutionService).getAllFlowStatistics(any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(flowExecutionService).getAllFlowStatistics(isNull(), isNull());
     }
 }
