@@ -47,6 +47,11 @@ dependencies {
     // Spring Expression Language
     implementation 'org.springframework:spring-expression'
     
+    // Easy Rules Framework
+    implementation 'org.jeasy:easy-rules-core:4.1.0'
+    implementation 'org.jeasy:easy-rules-support:4.1.0'
+    implementation 'org.jeasy:easy-rules-spel:4.1.0'
+    
     // Database
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'

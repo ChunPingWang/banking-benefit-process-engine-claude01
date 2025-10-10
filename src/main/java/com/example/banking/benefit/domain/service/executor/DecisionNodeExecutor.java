@@ -12,10 +12,15 @@ import java.util.Map;
 import com.example.banking.benefit.domain.service.expression.ExpressionEvaluator;
 import com.example.banking.benefit.domain.service.expression.JavaClassEvaluator;
 import com.example.banking.benefit.domain.service.expression.SpelExpressionEvaluator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 /**
- * 決策節點執行器
+ * 決策節點執行器 (原有實作)
+ * 當 Easy Rules 未啟用時使用此執行器
  */
+@Component
+@ConditionalOnProperty(name = "banking.benefit.decision.engine", havingValue = "legacy", matchIfMissing = true)
 public class DecisionNodeExecutor implements NodeExecutor {
 
     private final ExpressionEvaluator javaClassEvaluator;

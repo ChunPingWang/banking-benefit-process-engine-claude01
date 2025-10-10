@@ -1,0 +1,24 @@
+# Easy Rules Configuration
+banking:
+  benefit:
+    decision:
+      engine: easy-rules  # 可選值: legacy, easy-rules
+    
+# 原有配置保持不變
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      schema-locations: classpath:schema.sql

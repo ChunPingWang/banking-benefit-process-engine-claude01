@@ -1,4 +1,4 @@
-# 銀行權益流程引擎 (Banking Benefit Process Engine)
+# 客戶優惠流程引擎 (Banking Benefit Process Engine)
 
 ## 專案概述
 
