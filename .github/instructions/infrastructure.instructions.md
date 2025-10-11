@@ -21,6 +21,13 @@ infrastructure/
 │   │   └── EmailNotificationAdapter.java
 │   └── cache/          # 快取服務
 │       └── RedisCacheAdapter.java
+├── drools/             # Drools 規則引擎
+│   ├── config/        # Drools 配置
+│   │   └── DroolsConfig.java
+│   ├── adapter/       # 規則引擎適配器
+│   │   └── DroolsRuleEngine.java
+│   └── service/       # Drools 服務
+│       └── DroolsDecisionEvaluationService.java
 ├── config/             # 基礎設施配置
 │   ├── DatabaseConfig.java
 │   ├── RedisConfig.java
@@ -90,7 +97,17 @@ infrastructure/
 - 警報機制
 - 效能分析
 
-### 8. 效能優化
+### 8. Drools 規則引擎實作
+- KieServices 配置管理
+- 規則文件自動載入
+- KieContainer 生命週期
+- 規則編譯最佳化
+- 規則執行監控
+- 規則緩存策略
+- 規則版本管理
+- 規則測試隔離
+
+### 9. 效能優化
 - 查詢優化
 - 快取策略
 - 連接池配置

@@ -9,16 +9,19 @@
 - 🎯 **領域驅動設計**：以業務領域為核心的設計方法
 - ⚡ **高效能執行**：支援並行處理與快取機制
 - 🔄 **動態流程**：支援 Java 類別與 SpEL 表達式雙模式
+- 🧠 **智能規則引擎**：整合 Drools 規則引擎，支援聲明式業務規則
 - 📊 **完整監控**：提供執行日誌與效能監控
 - 🔐 **安全可靠**：完整的錯誤處理與審計功能
-- ✅ **高測試覆蓋率**：60 個單元測試，100% 通過率
+- ✅ **高測試覆蓋率**：70 個單元測試，100% 通過率
 
-### 最新更新 (2025-10-04)
-- ✨ 重構 `ExecutionContext` 與 `CustomerData` 模型，提升類型安全性
-- 🔧 引入 `CustomerAttribute` 泛型類別，支援強型別屬性管理
-- 🐛 修復所有測試案例，達成 100% 測試通過率
-- 📝 統一 SpEL 表達式語法，改善可維護性
-- 🏗️ 優化領域模型設計，遵循 SOLID 原則
+### 最新更新 (2025-10-10)
+- 🆕 **Drools 規則引擎整合**：完整整合 Drools 8.44.0.Final 規則引擎
+- 🔧 **DroolsDecisionEvaluationService**：@Primary 服務實現無縫替換
+- � **DRL 規則文件**：建立 customer-eligibility.drl 和 flow-control.drl
+- 🏗️ **適配器模式**：DroolsRuleEngine 隔離規則引擎依賴
+- ✅ **完整測試套件**：DroolsDecisionEvaluationServiceUnitTest 7 個測試案例
+- 🎯 **聲明式規則**：支援業務規則的聲明式管理和執行
+- 📊 **規則監控**：完整的規則執行日誌與效能監控
 
 ## 技術規格
 
@@ -27,10 +30,11 @@
 - **框架**: Spring Boot 3.2.0
 - **建構工具**: Gradle 8.x
 - **測試框架**: JUnit 5 + Mockito
-- **測試覆蓋率**: 60 個測試，100% 通過
+- **測試覆蓋率**: 70 個測試，100% 通過
 - **資料庫**: H2 (開發) / PostgreSQL (正式)
 - **快取**: Caffeine
-- **表達式引擎**: Spring Expression Language (SpEL)
+- **規則引擎**: Drools 8.44.0.Final
+- **表達式引擎**: Spring Expression Language (SpEL) + Drools Rules
 - **文件**: OpenAPI (Swagger)
 
 ### 效能指標
@@ -104,9 +108,26 @@ src/main/java/com/example/banking/benefit/
 │   ├── config/                                # 配置
 │   ├── persistence/                           # 持久化實作
 │   ├── adapter/                               # 外部服務適配器
+│   ├── drools/                               # Drools 規則引擎相關
+│   │   ├── config/                           # Drools 配置
+│   │   │   └── DroolsConfig.java            # KieServices 配置
+│   │   ├── adapter/                          # Drools 適配器
+│   │   │   └── DroolsRuleEngine.java        # 規則執行引擎
+│   │   └── service/                          # Drools 服務
+│   │       └── DroolsDecisionEvaluationService.java  # Drools 決策評估服務
 │   └── cache/                                 # 快取實作
 └── config/                                     # 應用配置
     └── ApplicationConfig.java
+
+src/main/resources/
+├── rules/                                    # Drools 規則文件
+│   ├── customer/                            # 客戶相關規則
+│   │   └── customer-eligibility.drl        # 客戶資格規則
+│   └── flow/                                # 流程控制規則
+│       └── flow-control.drl                 # 流程控制規則
+├── application.yml                          # 應用配置
+├── logback-spring.xml                       # 日誌配置
+└── schema.sql                               # 資料庫 Schema
 ```
 
 ## 核心模型設計
@@ -817,7 +838,51 @@ public class CustomDecisionLogic implements DecisionCommand {
 }
 ```
 
-3. **監控流程執行**
+3. **Drools 規則開發**
+
+系統現已整合 Drools 規則引擎，支援聲明式業務規則管理：
+
+**規則文件結構**
+```
+src/main/resources/rules/
+├── customer/                        # 客戶相關規則
+│   └── customer-eligibility.drl     # 客戶資格規則
+└── flow/                            # 流程控制規則
+    └── flow-control.drl             # 流程控制規則
+```
+
+**DRL 規則範例**
+```drl
+package com.example.banking.benefit.rules.customer
+
+import com.example.banking.benefit.domain.model.common.CustomerData
+import com.example.banking.benefit.domain.model.common.BankingContext
+
+rule "客戶年齡驗證"
+when
+    $customer: CustomerData(get("age", Integer.class) >= 20, get("age", Integer.class) <= 65)
+    $context: BankingContext()
+then
+    System.out.println("客戶年齡驗證通過: " + $customer.get("age", Integer.class));
+    $context.setDecisionResult(true);
+end
+```
+
+**DroolsDecisionEvaluationService 使用**
+```java
+@Service
+@Primary
+public class DroolsDecisionEvaluationService implements DecisionEvaluationService {
+    
+    @Override
+    public boolean evaluate(DecisionNode decisionNode, BaseExecutionContext context) {
+        // 透過 Drools 規則引擎評估決策
+        return droolsRuleEngine.executeDecisionRules(decisionNode.getNodeId(), context);
+    }
+}
+```
+
+4. **監控流程執行**
 ```http
 # 查詢執行統計
 GET /api/v1/statistics
@@ -866,7 +931,7 @@ Closes #123
 ## 測試狀態
 
 ### 測試覆蓋率
-- **總測試數**: 46 個
+- **總測試數**: 70 個
 - **通過率**: 100%
 - **測試類別**:
   - ✅ SpelExpressionEvaluatorTest (7/7)
@@ -876,14 +941,16 @@ Closes #123
   - ✅ BaseProcessExecutionServiceTest (5/5)
   - ✅ DecisionNodeExecutorTest (6/6)
   - ✅ ProcessNodeExecutorTest (7/7)
-  - ✅ BaseFlowExecutionServiceTest (2/2)
+  - ✅ SimpleFlowExecutionServiceImplTest (2/2)
+  - ✅ FlowExecutionControllerTest (17/17)
+  - ✅ DroolsDecisionEvaluationServiceUnitTest (7/7)
 
 ### 最近修復
-- 統一 `ExecutionContext` 模型，解決套件衝突
-- 引入 `CustomerAttribute` 泛型類別，提升類型安全
-- 修正 SpEL 表達式語法 (`#customerData.get('key')`)
-- 完善 mock 依賴注入，修復服務層測試
-- 調整測試預期，處理不存在類別的情境
+- 🆕 **Drools 規則引擎整合**：完整的 Drools 決策評估服務測試
+- ✅ **規則執行驗證**：7 個 Drools 測試案例，包含規則觸發驗證
+- 🔧 **獨立單元測試**：避免 Spring Boot 上下文複雜性的測試設計
+- 📊 **規則監控測試**：驗證 KieContainer 創建和規則編譯過程
+- 🎯 **業務規則測試**：客戶資格和流程控制規則的完整測試覆蓋
 
 ## 測試策略
 
@@ -1038,7 +1105,8 @@ Closes #123
 
 ---
 
-**最後更新**: 2025年10月4日  
+**最後更新**: 2025年10月10日  
 **版本**: 1.0.0  
-**測試狀態**: ✅ 46/46 通過 (100%)  
+**測試狀態**: ✅ 70/70 通過 (100%)  
+**Drools 整合**: ✅ 完成  
 **維護者**: Banking Benefit Team

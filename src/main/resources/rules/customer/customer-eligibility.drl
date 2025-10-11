@@ -1,0 +1,44 @@
+package rules.customer
+
+import com.example.banking.benefit.domain.model.common.CustomerData
+import com.example.banking.benefit.infrastructure.drools.model.BankingContext
+
+// 客戶年齡驗證規則
+rule "Customer Age Validation"
+    when
+        $customer: CustomerData()
+        $age: Integer() from $customer.get("age")
+        eval($age >= 20 && $age <= 65)
+    then
+        System.out.println("客戶年齡驗證通過: " + $age);
+end
+
+// 未成年客戶無效規則
+rule "Customer Age Invalid"
+    when
+        $customer: CustomerData()
+        $age: Integer() from $customer.get("age")
+        eval($age < 20 || $age > 65)
+    then
+        System.out.println("客戶年齡驗證失敗: " + $age);
+end
+
+// VIP 客戶檢查
+rule "VIP Customer Check"
+    when
+        $customer: CustomerData()
+        $type: String() from $customer.get("type")
+        eval("VIP".equals($type))
+    then
+        System.out.println("VIP 客戶檢查通過");
+end
+
+// 薪資要求規則
+rule "Salary Requirement"
+    when
+        $customer: CustomerData()
+        $balance: Double() from $customer.get("balance")
+        eval($balance >= 30000)
+    then
+        System.out.println("薪資要求滿足: " + $balance);
+end

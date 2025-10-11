@@ -47,6 +47,17 @@ dependencies {
     // Spring Expression Language
     implementation 'org.springframework:spring-expression'
     
+    // Drools BOM
+    implementation platform('org.drools:drools-bom:8.44.0.Final')
+    
+    // Drools Core Dependencies
+    implementation 'org.drools:drools-core'
+    implementation 'org.drools:drools-compiler'
+    implementation 'org.drools:drools-mvel'
+    implementation 'org.drools:drools-decisiontables'
+    implementation 'org.kie:kie-api'
+    implementation 'org.kie:kie-internal'
+    
     // Database
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'

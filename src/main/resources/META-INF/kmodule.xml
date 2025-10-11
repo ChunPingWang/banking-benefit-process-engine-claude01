@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns="http://www.drools.org/xsd/kmodule">
+    <kbase name="rules" packages="rules">
+        <ksession name="ksession-rules"/>
+    </kbase>
+    <kbase name="customer-rules" packages="rules.customer">
+        <ksession name="ksession-customer"/>
+    </kbase>
+    <kbase name="product-rules" packages="rules.product">
+        <ksession name="ksession-product"/>
+    </kbase>
+    <kbase name="flow-rules" packages="rules.flow">
+        <ksession name="ksession-flow"/>
+    </kbase>
+</kmodule>
